@@ -23,7 +23,7 @@ Donation Address ZEPHYR2xnxWTxh31HcSHeMKEF8gnQ8vvQZAZsLQDshLwTaeXbfBwR29FzpU3NSu
 
 ## 🔍 Overview
 
-The Ƶpay QR Code Generator is a an **desktop application** that creates professional QR codes for Zephyr wallet addresses. Perfect for receiving payments, donations, or sharing your wallet address securely.
+The Ƶpay QR Code Generator is a **desktop application** that creates professional QR codes for Zephyr wallet addresses. Perfect for receiving payments, donations, or sharing your wallet address securely.
 
 ## 🚀 Getting Started
 
