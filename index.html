@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ƶpay QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .qr-container {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .qr-wrapper {
+            position: relative;
+            display: inline-block;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        #qrcode {
+            border-radius: 10px;
+        }
+
+        .qr-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #1e3c72;
+            border: 3px solid #1e3c72;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .download-btn, .copy-btn {
+            margin: 10px;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover, .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        .address-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            font-size: 14px;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ƶpay QR Code Generator</h1>
+        
+        <div class="input-group">
+            <label for="walletAddress">Zephyr Wallet Address:</label>
+            <input 
+                type="text" 
+                id="walletAddress" 
+                placeholder="Enter your Zephyr wallet address..."
+                autocomplete="off"
+            >
+        </div>
+        
+        <button class="generate-btn" onclick="generateQR()">Generate QR Code</button>
+        
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
+        
+        <div id="qrContainer" class="qr-container">
+            <div class="qr-wrapper">
+                <div id="qrcode"></div>
+                <div class="qr-logo">Ƶpay</div>
+            </div>
+            
+            <div class="address-display" id="addressDisplay"></div>
+            
+            <div style="margin-top: 20px;">
+                <button class="copy-btn" onclick="copyHTML()">Copy HTML</button>
+                <button class="download-btn" onclick="downloadQR()">Download QR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAddress = '';
+        let qrCodeDataURL = '';
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${isError ? 'error' : 'success'}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function generateQR() {
+            const address = document.getElementById('walletAddress').value.trim();
+            
+            if (!address) {
+                showStatus('Please enter a wallet address', true);
+                return;
+            }
+
+            if (address.length < 10) {
+                showStatus('Please enter a valid wallet address', true);
+                return;
+            }
+
+            currentAddress = address;
+            
+            try {
+
+                document.getElementById('qrcode').innerHTML = '';
+                
+
+                const canvas = document.createElement('canvas');
+                document.getElementById('qrcode').appendChild(canvas);
+                
+                const qr = new QRious({
+                    element: canvas,
+                    value: address,
+                    size: 280,
+                    foreground: '#1e3c72',
+                    background: '#ffffff',
+                    level: 'M'
+                });
+                
+                qrCodeDataURL = canvas.toDataURL('image/png');
+                
+                document.getElementById('qrContainer').style.display = 'block';
+                document.getElementById('addressDisplay').textContent = address;
+                showStatus('QR code generated successfully!');
+                
+                document.getElementById('qrContainer').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+                
+            } catch (error) {
+                showStatus('Error generating QR code: ' + error.message, true);
+                console.error('QR Generation Error:', error);
+            }
+        }
+
+        async function copyHTML() {
+            if (!currentAddress || !qrCodeDataURL) {
+                showStatus('No QR code to copy', true);
+                return;
+            }
+
+            const htmlCode = `<!-- Ƶpay QR Code Widget -->
+<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 15px; max-width: 400px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <h3 style="color: #1e3c72; margin-bottom: 15px; font-family: Arial, sans-serif;">Ƶpay</h3>
+    <div style="background: white; padding: 15px; border-radius: 10px; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <img src="${qrCodeDataURL}" alt="Ƶpay QR Code" style="width: 200px; height: 200px; display: block;">
+    </div>
+    <p style="margin: 15px 0 5px 0; color: #666; font-size: 12px; font-family: Arial, sans-serif;">Wallet Address:</p>
+    <code style="background: #e9ecef; padding: 8px; border-radius: 5px; font-size: 10px; word-break: break-all; display: block; color: #495057;">${currentAddress}</code>
+    <p style="margin: 10px 0 0 0; color: #888; font-size: 11px; font-family: Arial, sans-serif;">Scan for Address</p>
+</div>`;
+
+            try {
+                await navigator.clipboard.writeText(htmlCode);
+                showStatus('HTML code copied to clipboard!');
+            } catch (err) {
+
+                const textArea = document.createElement('textarea');
+                textArea.value = htmlCode;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('HTML code copied to clipboard!');
+            }
+        }
+
+        function downloadQR() {
+            if (!qrCodeDataURL) {
+                showStatus('No QR code to download', true);
+                return;
+            }
+
+            const finalCanvas = document.createElement('canvas');
+            const ctx = finalCanvas.getContext('2d');
+            finalCanvas.width = 320;
+            finalCanvas.height = 320;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 320, 320);
+            
+            const qrImage = new Image();
+            qrImage.onload = function() {
+
+                ctx.drawImage(qrImage, 20, 20, 280, 280);
+                
+                const centerX = 160;
+                const centerY = 160;
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#1e3c72';
+                ctx.lineWidth = 3;
+                
+                const logoWidth = 80;
+                const logoHeight = 32;
+                const radius = 12;
+                
+                ctx.beginPath();
+                ctx.roundRect(centerX - logoWidth/2, centerY - logoHeight/2, logoWidth, logoHeight, radius);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = '#1e3c72';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Ƶpay', centerX, centerY);
+
+                const finalDataURL = finalCanvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `zephyre-wallet-qr-${Date.now()}.png`;
+                link.href = finalDataURL;
+                link.click();
+                showStatus('QR code with logo downloaded!');
+            };
+            
+            qrImage.src = qrCodeDataURL;
+        }
+
+        document.getElementById('walletAddress').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+
+        document.getElementById('walletAddress').focus();
+    </script>
+</body>
+</html>
