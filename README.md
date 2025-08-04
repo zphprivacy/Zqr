@@ -8,6 +8,7 @@ Donation Address ZEPHYR2xnxWTxh31HcSHeMKEF8gnQ8vvQZAZsLQDshLwTaeXbfBwR29FzpU3NSu
 
 [![Status](https://img.shields.io/badge/status-active-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/platform-linux-lightgrey.svg)]()
+[![Platform](https://img.shields.io/badge/platform-windows-blue.svg)]()
 ---
 
 ## 📋 Table of Contents
